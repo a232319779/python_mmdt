@@ -62,3 +62,7 @@ class Testmmdt(unittest.TestCase):
             sim2 = mmdt.mmdt_compare_hash(r1, r2)
             print(sim2)
 ```
+
+## Screenshot
+
+![python-mmdt](./pictures/python-mmdt.jpg)
