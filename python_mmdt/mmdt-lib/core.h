@@ -7,6 +7,7 @@
 #include <time.h>
 #include <libgen.h>
 #include <sys/stat.h>
+#include <math.h>
 // #include <sys/types.h>
 
 
@@ -16,8 +17,8 @@
 #define FUNCTION_TYPE_CLUSTER 4
 
 #define USE_INDEX_MATCH 5
-#define NORMALIZATION_STANDARD_3 4080
-#define NORMALIZATION_STANDARD_1 1020
+#define NORMALIZATION_STANDARD_3 4080.0
+#define NORMALIZATION_STANDARD_1 1020.0
 
 #ifndef _S_IFDIR
 #define _S_IFDIR 0x4000
