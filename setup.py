@@ -162,8 +162,12 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "mmdt-hash = python_mmdt.mmdt.mmdt:mmdt_hash",
-            "mmdt-compare = python_mmdt.mmdt.mmdt:mmdt_compare",
+            "mmdt-hash = python_mmdt.mmdt.run:mmdt_hash",
+            "mmdt-compare = python_mmdt.mmdt.run:mmdt_compare",
+            "mmdt-classify = python_mmdt.mmdt.run:mmdt_classfiy",
+            "mmdt-gen = python_mmdt.mmdt.run:mmdt_gen_sets",
+            "mmdt-filter = python_mmdt.mmdt.run:mmdt_filter_sets",
+            "mmdt-filter-simple = python_mmdt.mmdt.run:mmdt_filter_simple_sets",
         ]
     },
     python_requires='>=3.6',

@@ -8,10 +8,9 @@
 
 
 import os
-import sys
 import platform
 from ctypes import *
-
+from python_mmdt.mmdt.serialized import mmdt_load
 
 SYSTEM_VER = platform.system().lower()
 
@@ -35,9 +34,19 @@ class MMDT(object):
     def __init__(self):
         cwd = os.path.abspath(os.path.dirname(__file__))
         lib_core_path = os.path.join(cwd, "libcore.{}".format(ENGINE_SUFFIX[SYSTEM_VER]))
+        mmdt_feature_file_name = os.path.join(cwd, "mmdt_feature.data")
+        mmdt_feature_label_file_name = os.path.join(cwd, "mmdt_feature.label")
+        self.datas = list()
+        self.labels = list()
 
         if not os.path.exists(lib_core_path):
             raise Exception(lib_core_path)
+
+        if os.path.exists(mmdt_feature_file_name):
+            self.datas = mmdt_load(mmdt_feature_file_name)
+        
+        if os.path.exists(mmdt_feature_label_file_name):
+            self.labels = mmdt_load(mmdt_feature_label_file_name)
 
         api = CDLL(lib_core_path)
 
@@ -56,7 +65,7 @@ class MMDT(object):
         self.py_mmdt_compare_hash = api.mmdt_compare_hash
         self.py_mmdt_compare_hash.argtypes = [MMDT_Data, MMDT_Data]
         self.py_mmdt_compare_hash.restype = c_double
-    
+
     @staticmethod
     def __str_to_mmdt__(md_str):
         md = MMDT_Data()
@@ -103,15 +112,41 @@ class MMDT(object):
         sim = self.py_mmdt_compare_hash(md1, md2)
         return sim
 
+    def simple_classify(self, md, dlt):
+        def gen_simple_features():
+            datas = {}
+            for data in self.datas:
+                tmp = data.split(':')
+                index_value = int(tmp[0], 16)
+                if index_value not in datas.keys():
+                    datas[index_value] = [('%s:%s' % (tmp[0], tmp[1]), int(tmp[2],10))]
+                else:
+                    datas[index_value].append(('%s:%s' % (tmp[0], tmp[1]), int(tmp[2],10)))
+            return datas
+        
+        datas = gen_simple_features()
+        index_value = int(md.split(':')[0], 16)
+        match_datas = datas.get(index_value, [])
+        for match_data in match_datas:
+            sim = self.mmdt_compare_hash(md, match_data[0])
+            if sim > dlt:
+                label_index = match_data[1]
+                if label_index <= len(self.labels):
+                    label = self.labels[label_index-1]
+                else:
+                    label = 'malicious'
+                return sim, label
+        return None, None
 
-def mmdt_hash():
-    mmdt = MMDT()
-    r = mmdt.mmdt_hash(sys.argv[1])
-    print(r)
+    def classify(self, filename, dlt, classify_type=1):
+        md = self.mmdt_hash(filename)
+        if md:
+            if classify_type == 1:
+                sim, label = self.simple_classify(md, dlt)
+                if sim and label:
+                    print('%s:%f,%s' % (filename, sim, label))
+                else:
+                    print('%s: not matched.' % filename)
+        else:
+            print('%s mmdt_hash is None' % filename)
 
-
-def mmdt_compare():
-    mmdt = MMDT()
-    sim = 0.0
-    sim = mmdt.mmdt_compare(sys.argv[1], sys.argv[2])
-    print(sim)
