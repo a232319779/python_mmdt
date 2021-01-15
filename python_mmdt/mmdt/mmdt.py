@@ -132,7 +132,7 @@ class MMDT(object):
             if sim > dlt:
                 label_index = match_data[1]
                 if label_index <= len(self.labels):
-                    label = self.labels[label_index-1]
+                    label = self.labels[label_index]
                 else:
                     label = 'malicious'
                 return sim, label
