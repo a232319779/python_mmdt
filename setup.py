@@ -168,6 +168,8 @@ setup(
             "mmdt-gen = python_mmdt.mmdt.run:mmdt_gen_sets",
             "mmdt-filter = python_mmdt.mmdt.run:mmdt_filter_sets",
             "mmdt-filter-simple = python_mmdt.mmdt.run:mmdt_filter_simple_sets",
+            "mmdt-std = python_mmdt.mmdt.run:mmdt_std",
+            "mmdt-copy = python_mmdt.mmdt.run:mmdt_copy_data",
         ]
     },
     python_requires='>=3.6',

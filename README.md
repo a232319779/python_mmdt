@@ -7,7 +7,7 @@ mmdt is a sensitive hash implementation that can be used to calculate file simil
 ## Pre-Install
 
 * `cmake`: 2.6 and above
-* `windows`: The current version (0.0.1) requires `minGW` to be installed on windows
+* `windows`: The current version (0.1.3) requires `minGW` to be installed on windows
 
 ## Install from Pypi
 

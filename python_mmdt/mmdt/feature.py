@@ -8,9 +8,8 @@
 
 
 import os
-import numpy as np
 from python_mmdt.mmdt.mmdt import MMDT
-from python_mmdt.mmdt.serialized import mmdt_save, mmdt_load
+from python_mmdt.mmdt.common import mmdt_save, mmdt_load, mmdt_std
 
 
 class MMDTFeature(object):
@@ -43,13 +42,7 @@ class MMDTFeature(object):
             yield file_path, f
 
     def check_mmdt_hash(self, md):
-        tmp = md.split(':')
-        main_hash = tmp[1]
-        main_values = []
-        for i in range(0, len(main_hash), 2):
-            main_values.append(int(main_hash[i:i+2], 16))
-        #求标准差
-        arr_std = np.std(main_values[4:12], ddof=1)
+        arr_std = mmdt_std(md)
         if arr_std > self.mmdt_feature_dlt:
             return True
         return False
@@ -57,20 +50,16 @@ class MMDTFeature(object):
     @staticmethod
     def filter_mmdt_hash(name, dlt):
         datas = mmdt_load(name)
+        print('old len: %d' % len(datas))
         new_datas = list()
         for data in datas:
-            tmp = data.split(':')
-            main_hash = tmp[1]
-            main_values = []
-            for i in range(0, len(main_hash), 2):
-                main_values.append(int(main_hash[i:i+2], 16))
-            #求标准差
-            arr_std = np.std(main_values[4:12], ddof=1)
+            arr_std = mmdt_std(data)
             if arr_std > dlt:
                 new_datas.append(data)
             else:
                 print('remove: %s' % (data))
-
+        new_datas = list(set(new_datas))
+        print('new len: %d' % len(new_datas))
         mmdt_save(name, new_datas)
 
     @staticmethod

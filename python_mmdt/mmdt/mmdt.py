@@ -10,7 +10,7 @@
 import os
 import platform
 from ctypes import *
-from python_mmdt.mmdt.serialized import mmdt_load
+from python_mmdt.mmdt.common import mmdt_load,mmdt_std
 
 SYSTEM_VER = platform.system().lower()
 
@@ -131,22 +131,24 @@ class MMDT(object):
             sim = self.mmdt_compare_hash(md, match_data[0])
             if sim > dlt:
                 label_index = match_data[1]
-                if label_index <= len(self.labels):
+                if self.labels:
                     label = self.labels[label_index]
                 else:
-                    label = 'malicious'
-                return sim, label
-        return None, None
+                    label = 'match_%d' % label_index
+                return sim, label, match_data[0]
+        return None, None, None
 
     def classify(self, filename, dlt, classify_type=1):
         md = self.mmdt_hash(filename)
         if md:
             if classify_type == 1:
-                sim, label = self.simple_classify(md, dlt)
+                sim, label, match_data = self.simple_classify(md, dlt)
+                arr_std = mmdt_std(md)
                 if sim and label:
-                    print('%s:%f,%s' % (filename, sim, label))
+                    # print('%s,%f,%s,%f,%s,%s' % (filename, sim, label, arr_std, md, match_data))
+                    print('%s,%f,%s,%f' % (filename, sim, label, arr_std))
                 else:
-                    print('%s: not matched.' % filename)
+                    # print('%s: not matched.' % filename)
+                    print('%s,%f,%s,%f' % (filename, 0.0, 'unknown', 0.0))
         else:
             print('%s mmdt_hash is None' % filename)
-
