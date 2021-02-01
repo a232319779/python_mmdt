@@ -9,6 +9,7 @@
 
 import os
 import platform
+import numpy as np
 from ctypes import *
 from python_mmdt.mmdt.common import mmdt_load,mmdt_std
 
@@ -38,6 +39,8 @@ class MMDT(object):
         mmdt_feature_label_file_name = os.path.join(cwd, "mmdt_feature.label")
         self.datas = list()
         self.labels = list()
+        self.build_datas = None
+        self.build_labels = None
 
         if not os.path.exists(lib_core_path):
             raise Exception(lib_core_path)
@@ -112,8 +115,13 @@ class MMDT(object):
         sim = self.py_mmdt_compare_hash(md1, md2)
         return sim
 
-    def simple_classify(self, md, dlt):
-        def gen_simple_features():
+    def build_features(self, classify_type=1):
+        if classify_type == 1:
+            self.build_datas = self.gen_simple_features()
+        elif classify_type == 2:
+            self.build_datas, self.build_labels = self.gen_knn_features()
+
+    def gen_simple_features(self):
             datas = {}
             for data in self.datas:
                 tmp = data.split(':')
@@ -123,8 +131,9 @@ class MMDT(object):
                 else:
                     datas[index_value].append(('%s:%s' % (tmp[0], tmp[1]), int(tmp[2],10)))
             return datas
-        
-        datas = gen_simple_features()
+
+    def simple_classify(self, md, dlt):
+        datas = self.build_datas
         index_value = int(md.split(':')[0], 16)
         match_datas = datas.get(index_value, [])
         for match_data in match_datas:
@@ -135,20 +144,68 @@ class MMDT(object):
                     label = self.labels[label_index]
                 else:
                     label = 'match_%d' % label_index
-                return sim, label, match_data[0]
-        return None, None, None
+                return sim, label
+        return 0.0, 'unknown'
+
+    def gen_knn_features(self):
+        data_list = []
+        label_list = []
+        for data in self.datas:
+            tmp = data.split(':')
+            main_hash = tmp[1]
+            main_values = []
+            for i in range(0, len(main_hash), 2):
+                main_values.append(int(main_hash[i:i+2], 16))
+            data_list.append(main_values)
+            label_list.append(int(tmp[2]))
+        
+        return data_list, label_list
+
+    def knn_classify(self, md, dlt):
+        def gen_knn_data(data):
+            tmp = data.split(':')
+            main_hash = tmp[1]
+            main_values = []
+            for i in range(0, len(main_hash), 2):
+                main_values.append(int(main_hash[i:i+2], 16))
+
+            return main_values
+        
+        datas = self.build_datas
+        labels = self.build_labels
+        
+        train_datas = np.array(datas)
+        t_data = gen_knn_data(md)
+        rowSize = train_datas.shape[0]
+        diff = np.tile(t_data, (rowSize, 1)) - train_datas
+        sqr_diff = diff ** 2
+        sqr_diff_sum = sqr_diff.sum(axis=1)
+        distances = sqr_diff_sum ** 0.5
+        sort_distance = distances.argsort()
+        
+        matched = sort_distance[0]
+
+        label_index = labels[matched]
+        sim = 1.0 - distances[matched]/1020.0
+        if sim > dlt:
+            if self.labels:
+                label = self.labels[label_index]
+            else:
+                label = 'match_%d' % label_index
+            return sim, label
+        return 0.0, 'unknown'
 
     def classify(self, filename, dlt, classify_type=1):
         md = self.mmdt_hash(filename)
         if md:
+            arr_std = mmdt_std(md)
             if classify_type == 1:
-                sim, label, match_data = self.simple_classify(md, dlt)
-                arr_std = mmdt_std(md)
-                if sim and label:
-                    # print('%s,%f,%s,%f,%s,%s' % (filename, sim, label, arr_std, md, match_data))
-                    print('%s,%f,%s,%f' % (filename, sim, label, arr_std))
-                else:
-                    # print('%s: not matched.' % filename)
-                    print('%s,%f,%s,%f' % (filename, 0.0, 'unknown', 0.0))
+                sim, label = self.simple_classify(md, dlt)
+            elif classify_type == 2:
+                sim, label = self.knn_classify(md, dlt)
+            else:
+                sim = 0.0
+                label = 'unknown'
+            print('%s,%f,%s,%f' % (filename, sim, label, arr_std))
         else:
             print('%s mmdt_hash is None' % filename)
