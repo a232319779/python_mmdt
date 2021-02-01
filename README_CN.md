@@ -5,7 +5,7 @@
 ## 安装预备
 
 * `cmake`：2.6以上版本
-* `windows`：当前版本(0.1.3)需单独安装 `minGW`
+* `windows`：当前版本(0.2.2)需单独安装 `minGW`
 
 ## PIP安装
 
@@ -27,6 +27,30 @@ $ mmdt-hash $file_path
 
 # 比较相似度
 $ mmdt-compare $file_path1 $file_path2
+
+# 使用分类器实现恶意样本识别
+➜ mmdt-classify -h
+usage: python_mmdt malicious file scan tool [-h] [-s SCANS] [-t THRESHOLD]
+                                            [-c CLASSIFY_TYPE]
+
+A malicious scanner tool based on mmdt_hash. Version 0.2.1
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SCANS, --scans SCANS
+                        set file/path to scan.
+  -t THRESHOLD, --threshold THRESHOLD
+                        set threshold value to determine whether the file is a
+                        malicious file. (default 0.95)
+  -c CLASSIFY_TYPE, --classify CLASSIFY_TYPE
+                        set classify type.set 1 for simple classify, set 2 for
+                        knn classify.(default 1)
+
+Use like:
+    1. use simple classify
+    mmdt-classify -s $sample_path -t 0.95 -c 1
+    2. use knn classify
+    mmdt-classify -s $sample_path -t 0.95 -c 2
 ```
 
 ### python代码
@@ -59,4 +83,8 @@ class Testmmdt(unittest.TestCase):
 
 ## 截图示例
 
-![python-mmdt](./pictures/python-mmdt.jpg)
+### 计算文件相似度
+![](./pictures/python-mmdt.jpg)
+
+### 利用分类器实现恶意代码识别
+![](./pictures/scan.png)

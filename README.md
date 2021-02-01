@@ -7,7 +7,7 @@ mmdt is a sensitive hash implementation that can be used to calculate file simil
 ## Pre-Install
 
 * `cmake`: 2.6 and above
-* `windows`: The current version (0.1.3) requires `minGW` to be installed on windows
+* `windows`: The current version (0.2.2) requires `minGW` to be installed on windows
 
 ## Install from Pypi
 
@@ -29,10 +29,34 @@ $ pip install python_mmdt-xxx.whl
 
 ```sh
 # calculate mmdt sensitive
-$ mmdt-hash $file_path
+➜ mmdt-hash $file_path
 
 # calculate file similarity
-$ mmdt-compare $file_path1 $file_path2
+➜ mmdt-compare $file_path1 $file_path2
+
+# use classifier to detected malicious file
+➜ mmdt-classify -h
+usage: python_mmdt malicious file scan tool [-h] [-s SCANS] [-t THRESHOLD]
+                                            [-c CLASSIFY_TYPE]
+
+A malicious scanner tool based on mmdt_hash. Version 0.2.1
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SCANS, --scans SCANS
+                        set file/path to scan.
+  -t THRESHOLD, --threshold THRESHOLD
+                        set threshold value to determine whether the file is a
+                        malicious file. (default 0.95)
+  -c CLASSIFY_TYPE, --classify CLASSIFY_TYPE
+                        set classify type.set 1 for simple classify, set 2 for
+                        knn classify.(default 1)
+
+Use like:
+    1. use simple classify
+    mmdt-classify -s $sample_path -t 0.95 -c 1
+    2. use knn classify
+    mmdt-classify -s $sample_path -t 0.95 -c 2
 ```
 
 ### python code
@@ -65,4 +89,8 @@ class Testmmdt(unittest.TestCase):
 
 ## Screenshot
 
-![python-mmdt](./pictures/python-mmdt.jpg)
+### calculate file similarity
+![](./pictures/python-mmdt.jpg)
+
+### use classifier to detected malicious file
+![](./pictures/scan.png)
