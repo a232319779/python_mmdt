@@ -20,7 +20,7 @@ __title__ = "python_mmdt"
 __summary__ = "Python wrapper for the mmdt library"
 __uri__ = "https://github.com/a232319779/python_mmdt"
 
-__version__ = "0.2.3"
+__version__ = "0.3.0"
 
 __author__ = "ddvv"
 __email__ = "dadavivi512@gmail.com"

@@ -11,7 +11,8 @@ import os
 import sys
 import shutil
 import argparse
-from python_mmdt.mmdt.common import mmdt_std as __mmdt_std__
+import requests
+from python_mmdt.mmdt.common import mmdt_load, mmdt_save, gen_md5, gen_sha1, mmdt_std as __mmdt_std__
 from python_mmdt.mmdt.mmdt import MMDT
 from python_mmdt.mmdt.feature import MMDTFeature
 
@@ -96,11 +97,37 @@ def mmdt_std():
 def mmdt_copy_data():
     cwd = os.path.abspath(os.path.dirname(__file__))
     source_file_path = sys.argv[1]
-    source_file_basename = os.path.basename(source_file_path)
-    target_file = os.path.join(cwd, source_file_basename)
+    target_file = os.path.join(cwd, 'mmdt_feature.data')
     try:
         shutil.copy(source_file_path, target_file)
     except IOError as e:
         print("Unable to copy file. %s" % e)
     except Exception as e:
         print("Unexpected error: " % str(e))
+
+def mmdt_scan_online():
+    mmdt = MMDT()
+    file_name = sys.argv[1]
+    file_md5 = gen_md5(file_name)
+    file_sha1 = gen_sha1(file_name)
+    file_mmdt = mmdt.mmdt_hash(file_name)
+    data = {
+        "md5": file_md5,
+        "sha1": file_sha1,
+        "file_name": file_name,
+        "mmdt": file_mmdt,
+        "data": {}
+    }
+    r = requests.post(url='http://mmdt.me/mmdt/scan', json=data)
+    print(r.text)
+
+def mmdt_feature_merge():
+    """
+    实现特征合并
+    """
+    file_name1 = sys.argv[1]
+    file_name2 = sys.argv[2]
+    data1 = mmdt_load(file_name1)
+    data2 = mmdt_load(file_name2)
+    data1.extend(data2)
+    mmdt_save(file_name1, data1)

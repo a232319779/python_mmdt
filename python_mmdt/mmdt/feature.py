@@ -8,6 +8,7 @@
 
 
 import os
+import hashlib
 from python_mmdt.mmdt.mmdt import MMDT
 from python_mmdt.mmdt.common import mmdt_save, mmdt_load, mmdt_std
 
@@ -15,9 +16,7 @@ from python_mmdt.mmdt.common import mmdt_save, mmdt_load, mmdt_std
 class MMDTFeature(object):
     def __init__(self, dlt=10.0):
         self.mmdt_feature_file_name = 'mmdt_feature.data'
-        self.mmdt_feature_label_file_name = 'mmdt_feature.label'
         self.mmdt_feature_dlt = dlt
-        self.mmdt_feature_labels = list()
         self.mmdt = MMDT()
 
     @staticmethod
@@ -33,6 +32,14 @@ class MMDTFeature(object):
                 labels[tmp[0]] = tmp[1]
         
         return labels
+    @staticmethod
+    def calc_sha1(file_name):
+        with open(file_name, 'rb') as f:
+            data = f.read()
+            _s = hashlib.sha1()
+            _s.update(data)
+            return _s.hexdigest()
+
 
     @staticmethod
     def list_dir(root_dir):
@@ -79,12 +86,9 @@ class MMDTFeature(object):
             print('process: %s, %d' % (file_name, count))
             mmdt_hash = self.mmdt.mmdt_hash(full_path)
             if self.check_mmdt_hash(mmdt_hash):
-                label = labels.get(file_name)
-                if label not in self.mmdt_feature_labels:
-                    self.mmdt_feature_labels.append(label)
-                label_indx = self.mmdt_feature_labels.index(label)
-                data = '%s:%d' % (mmdt_hash, label_indx)
+                c_sha1 = self.calc_sha1(full_path)
+                label = labels.get(file_name)                
+                data = '%s:%s:%s' % (mmdt_hash, label, c_sha1)
                 datas.append(data)
         
         mmdt_save(self.mmdt_feature_file_name, datas)
-        mmdt_save(self.mmdt_feature_label_file_name, self.mmdt_feature_labels)

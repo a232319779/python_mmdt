@@ -170,6 +170,8 @@ setup(
             "mmdt-filter-simple = python_mmdt.mmdt.run:mmdt_filter_simple_sets",
             "mmdt-std = python_mmdt.mmdt.run:mmdt_std",
             "mmdt-copy = python_mmdt.mmdt.run:mmdt_copy_data",
+            "mmdt-scan-online = python_mmdt.mmdt.run:mmdt_scan_online",
+            "mmdt-feature-merge = python_mmdt.mmdt.run:mmdt_feature_merge",
         ]
     },
     python_requires='>=3.6',
@@ -180,4 +182,8 @@ setup(
         "build_clib": BuildClib,
     },
     distclass=Distribution,
+    install_requires=[
+        "requests",
+        "numpy"
+    ]
 )

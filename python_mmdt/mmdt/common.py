@@ -7,6 +7,7 @@
 # @Desc    :   None
 
 
+import hashlib
 import zipfile
 import numpy as np
 import _pickle as cPickle
@@ -35,3 +36,20 @@ def mmdt_std(md):
     #求标准差
     arr_std = np.std(std_main_values, ddof=1)
     return arr_std
+
+# 生成md5
+def gen_md5(file_name):
+    with open(file_name, 'rb') as f:
+        s = f.read()
+        _m = hashlib.md5()
+        _m.update(s)
+        return _m.hexdigest()
+
+
+# 生成sha1
+def gen_sha1(file_name):
+    with open(file_name, 'rb') as f:
+        s = f.read()
+        _s = hashlib.sha1()
+        _s.update(s)
+        return _s.hexdigest()
