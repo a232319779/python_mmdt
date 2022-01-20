@@ -11,6 +11,7 @@ import os
 import sys
 import shutil
 import argparse
+import json
 import requests
 from python_mmdt.mmdt.common import mmdt_load, mmdt_save, gen_md5, gen_sha1, mmdt_std as __mmdt_std__
 from python_mmdt.mmdt.mmdt import MMDT
@@ -40,7 +41,7 @@ Use like:
     mmdt-classify -s $sample_path -t 0.95 -c 2
         """
         parser = argparse.ArgumentParser(prog='python_mmdt malicious file scan tool',
-                                        description='A malicious scanner tool based on mmdt_hash. Version 0.2.2',
+                                        description='A malicious scanner tool based on mmdt_hash. Version 0.3.1',
                                         epilog=epilog,
                                         formatter_class=argparse.RawDescriptionHelpFormatter
                                         )
@@ -118,8 +119,9 @@ def mmdt_scan_online():
         "mmdt": file_mmdt,
         "data": {}
     }
-    r = requests.post(url='http://mmdt.me/mmdt/scan', json=data)
-    print(r.text)
+    r = requests.post(url='http://146.56.242.184/mmdt/scan', json=data)
+    r_data = r.json()
+    print(json.dumps(r_data, indent=4, ensure_ascii=False))
 
 def mmdt_feature_merge():
     """

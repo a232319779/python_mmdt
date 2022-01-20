@@ -7,7 +7,7 @@ mmdt is a sensitive hash implementation that can be used to calculate file simil
 ## Pre-Install
 
 * `cmake`: 2.6 and above
-* `windows`: The current version (0.2.2) requires `minGW` to be installed on windows
+* `windows`: The current version (0.3.1) requires `minGW` to be installed on windows
 
 ## Install from Pypi
 
@@ -39,7 +39,7 @@ $ pip install python_mmdt-xxx.whl
 usage: python_mmdt malicious file scan tool [-h] [-s SCANS] [-t THRESHOLD]
                                             [-c CLASSIFY_TYPE]
 
-A malicious scanner tool based on mmdt_hash. Version 0.2.1
+A malicious scanner tool based on mmdt_hash. Version 0.3.1
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -57,6 +57,61 @@ Use like:
     mmdt-classify -s $sample_path -t 0.95 -c 1
     2. use knn classify
     mmdt-classify -s $sample_path -t 0.95 -c 2
+
+# submit mmdt_hash
+➜ mmdt-scan-online .\test\2f04b8eb993ca4a3d98607824a10acfb
+{
+    "sha1": "a5ad744088e2739dc8b6a0622432106158d0abd8",
+    "md5": "2f04b8eb993ca4a3d98607824a10acfb",
+    "file_name": ".\\test\\2f04b8eb993ca4a3d98607824a10acfb",
+    "message": "查询任务已添加至查询队列，当前队列中还有0个任务",
+    "status": 20001,
+    "data": {}
+}
+
+# get check result
+➜ mmdt-scan-online .\test\2f04b8eb993ca4a3d98607824a10acfb
+{
+    "sha1": "a5ad744088e2739dc8b6a0622432106158d0abd8",
+    "md5": "2f04b8eb993ca4a3d98607824a10acfb",
+    "file_name": ".\\test\\2f04b8eb993ca4a3d98607824a10acfb",
+    "message": "success",
+    "status": 20000,
+    "data": {
+        "label": "APT28",
+        "labels": [
+            {
+                "label": "APT28",
+                "ratio": "20.00%"
+            },
+            {
+                "label": "virlock",
+                "ratio": "50.00%"
+            },
+            {
+                "label": "coinminer",
+                "ratio": "30.00%"
+            }
+        ],
+        "similars": [
+            {
+                "hash": "a5ad744088e2739dc8b6a0622432106158d0abd8",
+                "label": "APT28",
+                "sim": 1.0
+            },
+            {
+                "hash": "9001f4cfe62367a282efc08b072a13a5e2e403db",
+                "label": "APT28",
+                "sim": 0.9896245046624919
+            },
+            {
+                "hash": "0d3d452a7e8d7d328bfe9862cbcee33ad1ce4cf4",
+                "label": "virlock",
+                "sim": 0.8511449567066024
+            },
+            ...
+    }
+}
 ```
 
 ### python code
@@ -94,3 +149,7 @@ class Testmmdt(unittest.TestCase):
 
 ### use classifier to detected malicious file
 ![](./pictures/scan.png)
+
+### scan online
+![](./pictures/submit.jpg)
+![](./pictures/scan_online.jpg)
